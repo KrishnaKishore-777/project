@@ -1,0 +1,40 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+const app = express();
+const port = 3000;
+
+// Middleware to parse JSON bodies
+app.use(bodyParser.json());
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost/restaurant-recommendation')
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(err => {
+    console.log('Failed to connect to MongoDB', err);
+  });
+
+// Import routes
+const userRoutes = require('./routes/users');
+const restaurantRoutes = require('./routes/restaurants');
+
+// Use routes
+app.use('/api/users', userRoutes);
+app.use('/api/restaurants', restaurantRoutes);
+
+// Route for root path
+app.get('/', (req, res) => {
+  res.send('Welcome to the Restaurant Recommendation System!');
+});
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
